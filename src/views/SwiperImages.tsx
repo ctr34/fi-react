@@ -1,12 +1,16 @@
 import { Component, ReactNode } from "react";
 import { Table, Button, Image, Popconfirm, message } from "antd";
 import axios from "axios"
+import AddProduct from "@/components/product/AddProduct";
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
 class SwiperImages extends Component {
+
     state:any = {
-      dataSource:[]
+      dataSource:[],
+      showAddingDialog: false
     };
+
     urlBackend = `${apiUrl}/api/swiper`
     loadData = () => {
       axios.get(this.urlBackend).then((res) => {
@@ -56,7 +60,15 @@ class SwiperImages extends Component {
           console.error("Error swapping image order:", error);
           message.error("Failed to swap image order.");
         });
-    };
+    }
+
+    handleAddIamge = () => {
+      this.setState({ showAddingDialog: true })
+    }
+
+    closeAddingDialog = () => {
+      this.setState({ showAddingDialog: false })
+    }
 
     render(): ReactNode {
 
@@ -127,10 +139,23 @@ class SwiperImages extends Component {
           ];
 
         return (
+          <div>
+            <Button 
+              type="primary"
+              onClick={() => this.handleAddIamge()}
+              style={{ margin: 8 }}
+            >
+              Add swiper image
+            </Button>
             <Table dataSource={this.state.dataSource} columns={columns} rowKey="id" pagination={{
               pageSize: 3,
               defaultCurrent: 1
             }}/>
+            <AddProduct 
+              visible={this.state.showAddingDialog}
+              close={this.closeAddingDialog}
+              />
+          </div>
         );
     }
 }
