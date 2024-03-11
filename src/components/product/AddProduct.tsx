@@ -5,6 +5,9 @@ import AddProductFrm from "./AddProductFrm";
 interface AddProductProps {
     visible: boolean;
     close(): void;
+    deleteImage(pid: any): void;
+    datasource: [];
+    onRefreshData(): void;
   }
 
 class AddProduct extends Component<AddProductProps> {
@@ -15,10 +18,15 @@ class AddProduct extends Component<AddProductProps> {
                 open={this.props.visible} 
                 onCancel={() => this.props.close()}
                 title="Add product" 
-                okText="add" 
-                cancelText="cancel"
+                cancelText="Done"
+                // okText={null}
+                footer={null}
                 > 
-                    <AddProductFrm></AddProductFrm>
+                    <AddProductFrm 
+                        dataSource={this.props.datasource}
+                        deleteImage={this.props.deleteImage}
+                        onRefreshData={this.props.onRefreshData}
+                    />
             </Modal>
         );
     }

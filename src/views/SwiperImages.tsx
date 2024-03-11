@@ -8,7 +8,7 @@ class SwiperImages extends Component {
 
     state:any = {
       dataSource:[],
-      showAddingDialog: false
+      showAddingDialog: false 
     };
 
     urlBackend = `${apiUrl}/api/swiper`
@@ -69,6 +69,11 @@ class SwiperImages extends Component {
     closeAddingDialog = () => {
       this.setState({ showAddingDialog: false })
     }
+    handleRefreshData = () => {
+      console.log("Refreshing data...");
+      this.loadData()
+    }
+
 
     render(): ReactNode {
 
@@ -154,6 +159,9 @@ class SwiperImages extends Component {
             <AddProduct 
               visible={this.state.showAddingDialog}
               close={this.closeAddingDialog}
+              datasource={this.state.dataSource}
+              deleteImage={this.handleDelete}
+              onRefreshData={this.handleRefreshData}
               />
           </div>
         );
