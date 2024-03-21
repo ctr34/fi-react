@@ -118,7 +118,7 @@ class SwiperImages extends Component {
                       this.handleDelete(record.id)
                     }}
                   >
-                   <Button type="primary"  style={{ marginRight: 8 }}>Delete</Button>
+                   <Button type="primary" style={{ marginRight: 8 }}>Delete</Button>
                   </Popconfirm>
 
                   <Button
