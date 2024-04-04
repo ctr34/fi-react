@@ -5,12 +5,13 @@ import AddProductFrm from "./AddProductFrm";
 interface AddProductProps {
     visible: boolean;
     close(): void;
-    deleteImage(pid: any): void;
-    datasource: [];
-    onRefreshData(): void;
   }
 
 class AddProduct extends Component<AddProductProps> {
+
+    closeModal = () => {
+        this.props.close()
+    }
 
     render(): ReactNode {
         return (
@@ -19,14 +20,12 @@ class AddProduct extends Component<AddProductProps> {
                 onCancel={() => this.props.close()}
                 title="Add product" 
                 cancelText="Done"
-                // okText={null}
                 footer={null}
+                destroyOnClose
                 > 
-                    <AddProductFrm 
-                        dataSource={this.props.datasource}
-                        deleteImage={this.props.deleteImage}
-                        onRefreshData={this.props.onRefreshData}
-                    />
+                <AddProductFrm 
+                    closeModal={this.closeModal}
+                />
             </Modal>
         );
     }
