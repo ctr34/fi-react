@@ -1,7 +1,7 @@
 import { Component, ReactNode } from "react";
 import { Table, Button, Image, Popconfirm, message } from "antd";
 import axios from "axios"
-import AddProduct from "@/components/product/AddProduct";
+import AddSwiper from "@/components/swiper/AddSwiper";
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
 class SwiperImages extends Component {
@@ -156,7 +156,7 @@ class SwiperImages extends Component {
               pageSize: 3,
               defaultCurrent: 1
             }}/>
-            <AddProduct 
+            <AddSwiper 
               visible={this.state.showAddingDialog}
               close={this.closeAddingDialog}
               datasource={this.state.dataSource}
