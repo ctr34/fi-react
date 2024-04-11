@@ -2,13 +2,17 @@ import { Component, ReactNode } from "react";
 import { Table, Button, Image, Popconfirm, message } from "antd";
 import axios from "axios"
 import AddProduct from "@/components/product/AddProduct";
+import EditProduct from "@/components/product/EditProduct";
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
 class Products extends Component {
 
   state:any = {
     dataSource:[],
-    showAddingDialog: false 
+    showAddingDialog: false,
+    showEditingDialog: false,
+    editingRecord: {},
+    imageIds: {}
   };
 
   urlProduct = `${apiUrl}/api/product`
@@ -18,7 +22,18 @@ class Products extends Component {
     axios.get(this.urlProduct).then((res) => {
         
         this.setState({ dataSource: res.data });
-        console.log("Products loadData");
+
+        res.data.forEach(
+          (record:any) => {
+            axios.get(`${this.urlProductImages}/getImageIds/${record.id}`).then(
+              (imageRes: any) => {
+                this.setState((prevState: any) => ({
+                  imageIds: { ...prevState.imageIds, [record.id]: imageRes.data }
+                }))
+              }
+            )
+          }
+        )
       })
   }
   componentDidMount(): void {
@@ -49,6 +64,13 @@ class Products extends Component {
     this.setState({ showAddingDialog: false })
   }
 
+  handleEdit = (data:any) => {
+    this.setState({ showEditingDialog: true, editingRecord: data})
+  }
+  closeEditingDialog = () => {
+    this.setState({ showEditingDialog: false })
+  }
+
   render(): ReactNode {
 
       const columns = [
@@ -71,27 +93,44 @@ class Products extends Component {
             title: '(首张)图片预览',
             // dataIndex: 'imageData',
             key: 'imageData',
-            render: (record:any) => (
+            render: (record:any) => {
+
+              //get the ids of images from backend 
+              const imageIds = this.state.imageIds[record.id] || [];
+              //iterately display image by url
+              return (
+                <div>
+                  {imageIds.map((imageId: any) => (
+                    <Image key={imageId} width={100} src={`${this.urlProductImages}/getImageById/${imageId}`} />
+                  ))}
+                </div>
+              );
+
               <Image width={100} src={this.urlProductImages+"/getFirstImage/"+record.id}/>
               // <Image width={150} src={`data:image/png;base64,${record.imageData}`}/>
-            ),
+            }
           },
           {
             title: '操作',
             // dataIndex: 'imageData',
             key: 'id',
             render: (record:any) => (
-              <Popconfirm
-                title="Delete the picture"
-                description="Are you sure to delete this picture?"
-                okText="Yes"
-                cancelText="No"
-                onConfirm={() => {
-                  this.handleDelete(record.id)
-                }}
-              >
-                <Button type="primary">Delete</Button>
-              </Popconfirm>
+              <div style={{ display: 'flex', gap: '8px'}}>
+                <Button onClick={() => this.handleEdit(record)}>
+                  Edit
+                </Button>
+                <Popconfirm
+                  title="Delete the picture"
+                  description="Are you sure to delete this picture?"
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => {
+                    this.handleDelete(record.id)
+                  }}
+                >
+                  <Button type="primary">Delete</Button>
+                </Popconfirm>
+              </div>
             ),
             
           },
@@ -114,6 +153,11 @@ class Products extends Component {
           <AddProduct
             visible={this.state.showAddingDialog}
             close={this.closeAddingDialog}
+          />
+          <EditProduct
+            visible={this.state.showEditingDialog}
+            close={this.closeEditingDialog}
+            loadData={this.state.editingRecord}
           />
         </div>
       );
