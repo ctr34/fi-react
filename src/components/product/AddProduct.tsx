@@ -5,12 +5,17 @@ import AddProductFrm from "./AddProductFrm";
 interface AddProductProps {
     visible: boolean;
     close(): void;
+    reload(): void
   }
 
 class AddProduct extends Component<AddProductProps> {
 
     closeModal = () => {
         this.props.close()
+    }
+
+    reload = () => {
+        this.props.reload()
     }
 
     render(): ReactNode {
@@ -25,6 +30,7 @@ class AddProduct extends Component<AddProductProps> {
                 > 
                 <AddProductFrm 
                     closeModal={this.closeModal}
+                    reload={this.reload}
                 />
             </Modal>
         );

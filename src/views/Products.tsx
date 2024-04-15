@@ -12,7 +12,8 @@ class Products extends Component {
     showAddingDialog: false,
     showEditingDialog: false,
     editingRecord: {},
-    imageIds: {}
+    // imageIds: {},
+    typeOfEditProduct: ""
   };
 
   urlProduct = `${apiUrl}/api/product`
@@ -20,21 +21,24 @@ class Products extends Component {
 
   loadData = () => {
     axios.get(this.urlProduct).then((res) => {
+      this.setState({ dataSource: res.data });
+    })
+    // axios.get(this.urlProduct).then((res) => {
         
-        this.setState({ dataSource: res.data });
+    //     this.setState({ dataSource: res.data });
 
-        res.data.forEach(
-          (record:any) => {
-            axios.get(`${this.urlProductImages}/getImageIds/${record.id}`).then(
-              (imageRes: any) => {
-                this.setState((prevState: any) => ({
-                  imageIds: { ...prevState.imageIds, [record.id]: imageRes.data }
-                }))
-              }
-            )
-          }
-        )
-      })
+    //     res.data.forEach(
+    //       (record:any) => {
+    //         axios.get(`${this.urlProductImages}/getImageIds/${record.id}`).then(
+    //           (imageRes: any) => {
+    //             this.setState((prevState: any) => ({
+    //               imageIds: { ...prevState.imageIds, [record.id]: imageRes.data }
+    //             }))
+    //           }
+    //         )
+    //       }
+    //     )
+    //   })
   }
   componentDidMount(): void {
     this.loadData()
@@ -64,9 +68,14 @@ class Products extends Component {
     this.setState({ showAddingDialog: false })
   }
 
-  handleEdit = (data:any) => {
-    this.setState({ showEditingDialog: true, editingRecord: data})
+  handleInfoEdit = (data:any) => {
+    this.setState({ showEditingDialog: true, editingRecord: data, typeOfEditProduct: "info" })
   }
+
+  handleImageEdit = (data:any) => {
+    this.setState({ showEditingDialog: true, editingRecord: data, typeOfEditProduct: "image" })
+  }
+
   closeEditingDialog = () => {
     this.setState({ showEditingDialog: false })
   }
@@ -96,14 +105,15 @@ class Products extends Component {
             render: (record:any) => {
 
               //get the ids of images from backend 
-              const imageIds = this.state.imageIds[record.id] || [];
+              // const imageIds = this.state.imageIds[record.id] || [];
               //iterately display image by url
               return (
-                <div>
-                  {imageIds.map((imageId: any) => (
-                    <Image key={imageId} width={100} src={`${this.urlProductImages}/getImageById/${imageId}`} />
-                  ))}
-                </div>
+                // <div>
+                //   {imageIds.map((imageId: any) => (
+                //     <Image key={imageId} width={100} src={`${this.urlProductImages}/getImageById/${imageId}`} />
+                //   ))}
+                // </div>
+                <Image width={100} src={this.urlProductImages+"/getFirstImage/"+record.id}/>
               );
 
               <Image width={100} src={this.urlProductImages+"/getFirstImage/"+record.id}/>
@@ -116,8 +126,11 @@ class Products extends Component {
             key: 'id',
             render: (record:any) => (
               <div style={{ display: 'flex', gap: '8px'}}>
-                <Button onClick={() => this.handleEdit(record)}>
-                  Edit
+                <Button onClick={() => this.handleInfoEdit(record)}>
+                  Edit info
+                </Button>
+                <Button onClick={() => this.handleImageEdit(record)}>
+                  Edit image
                 </Button>
                 <Popconfirm
                   title="Delete the picture"
@@ -153,8 +166,10 @@ class Products extends Component {
           <AddProduct
             visible={this.state.showAddingDialog}
             close={this.closeAddingDialog}
+            reload={this.loadData}
           />
           <EditProduct
+            title={this.state.typeOfEditProduct}
             visible={this.state.showEditingDialog}
             close={this.closeEditingDialog}
             loadData={this.state.editingRecord}

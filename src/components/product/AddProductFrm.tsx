@@ -1,4 +1,4 @@
-import { Component, ReactNode } from "react";
+import React, { Component, ReactNode, RefObject } from "react";
 import { Form, Input, Select, Upload, Button, message, Space } from "antd";
 import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
 import { UploadFile } from 'antd/lib/upload/interface';
@@ -8,13 +8,21 @@ const { TextArea } = Input;
 
 interface AddProductFrmProps {
   closeModal: any
+  reload(): any
 }
 
 class AddProductFrm extends Component<AddProductFrmProps> {
+  uploadRef: RefObject<any>;
+  constructor(props: any){
+    super(props)
+    this.uploadRef = React.createRef();
+  }
+
+  componentDidMount(): void {
+    console.log("initial uploadRef: ", this.uploadRef.current);
+  }
 
   normFile = (e: any) => {
-    console.log("haha", e);
-    
     if (Array.isArray(e)) {
       return e;
     }
@@ -48,6 +56,8 @@ class AddProductFrm extends Component<AddProductFrmProps> {
   }
 
   handleSubmit = async (values: any) => {
+    console.log(values);
+    
     const { name, size, images, description } = values;
   
     const formData = new FormData();
@@ -65,10 +75,10 @@ class AddProductFrm extends Component<AddProductFrmProps> {
           'Content-Type': 'multipart/form-data'
         }
       });
-  
-      console.log('Response:', response.data);
-      message.success('Product added successfully!');
+      message.success('Product added successfully!'),
       this.props.closeModal()
+      this.props.reload()
+      
     } catch (error) {
       console.error('Error:', error);
       message.error('Failed to add product. Please try again later.');
@@ -99,9 +109,15 @@ class AddProductFrm extends Component<AddProductFrmProps> {
               </Select>
               </Form.Item>
 
-               <Form.Item name="images" label="Images" valuePropName="fileList" getValueFromEvent={this.normFile} rules={[{ required: true }]}>
+               <Form.Item 
+                  name="images" 
+                  label="Images" 
+                  valuePropName="fileList" 
+                  getValueFromEvent={this.normFile} 
+                  rules={[{ required: true }]}
+                >
                   <Upload 
-                    action={`${apiUrl}/api/images/uploadImage`} 
+                    ref={this.uploadRef}
                     listType="picture-card" 
                     beforeUpload={this.beforeUpload}>
                       <button style={{ border: 0, background: 'none' }} type="button">

@@ -21,10 +21,10 @@ const View: React.FC = () => {
         {/* The content on the right */}
       <Layout>
         <Header style={{ paddingLeft: '16px', background: colorBgContainer }}>
-          <Breadcrumb style={{ lineHeight: '64px' }}>
+          {/* <Breadcrumb style={{ lineHeight: '64px' }}>
             <Breadcrumb.Item>User</Breadcrumb.Item>
             <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
+          </Breadcrumb> */}
         </Header>
         <Content style={{ margin: '16px 16px 0', background: colorBgContainer }}>
           <div
