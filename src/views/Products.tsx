@@ -1,5 +1,5 @@
 import { Component, ReactNode } from "react";
-import { Table, Button, Image, Popconfirm, message } from "antd";
+import { Table, Button, Image, Popconfirm, message, Badge } from "antd";
 import axios from "axios"
 import AddProduct from "@/components/product/AddProduct";
 import EditProduct from "@/components/product/EditProduct";
@@ -12,8 +12,8 @@ class Products extends Component {
     showAddingDialog: false,
     showEditingDialog: false,
     editingRecord: {},
-    // imageIds: {},
-    typeOfEditProduct: ""
+    typeOfEditProduct: "",
+    numImages: 0
   };
 
   urlProduct = `${apiUrl}/api/product`
@@ -21,24 +21,20 @@ class Products extends Component {
 
   loadData = () => {
     axios.get(this.urlProduct).then((res) => {
-      this.setState({ dataSource: res.data });
+      const products = res.data
+      const promises = products.map((product: any) => {
+        return axios.get(`${this.urlProductImages}/getNumImagesByProductId?product_id=${product.id}`)
+        .then((ress) => ({...product, numImages:ress.data}))
+        .catch(() => ({ ...product, numImages: 0 }));
+      })
+      Promise.all(promises)
+      .then((updatedProducts) => {
+        this.setState({ dataSource: updatedProducts });
+      })
+      .catch((error) => {
+        console.error("Error loading product images:", error);
+      });
     })
-    // axios.get(this.urlProduct).then((res) => {
-        
-    //     this.setState({ dataSource: res.data });
-
-    //     res.data.forEach(
-    //       (record:any) => {
-    //         axios.get(`${this.urlProductImages}/getImageIds/${record.id}`).then(
-    //           (imageRes: any) => {
-    //             this.setState((prevState: any) => ({
-    //               imageIds: { ...prevState.imageIds, [record.id]: imageRes.data }
-    //             }))
-    //           }
-    //         )
-    //       }
-    //     )
-    //   })
   }
   componentDidMount(): void {
     this.loadData()
@@ -100,29 +96,24 @@ class Products extends Component {
           },
           {
             title: '(首张)图片预览',
-            // dataIndex: 'imageData',
             key: 'imageData',
             render: (record:any) => {
-
-              //get the ids of images from backend 
-              // const imageIds = this.state.imageIds[record.id] || [];
-              //iterately display image by url
               return (
-                // <div>
-                //   {imageIds.map((imageId: any) => (
-                //     <Image key={imageId} width={100} src={`${this.urlProductImages}/getImageById/${imageId}`} />
-                //   ))}
-                // </div>
-                <Image width={100} src={this.urlProductImages+"/getFirstImage/"+record.id}/>
+                <div style={{ position: 'relative' }}>
+                  <Image width={100} src={this.urlProductImages+"/getFirstImage/"+record.id}/>
+                  {record.numImages > 1 && (
+                    <Badge 
+                      count={record.numImages} 
+                      style={{ position: 'absolute', top: 5, right: 5 }} 
+                    >
+                    </Badge>
+                  )}
+                </div>
               );
-
-              <Image width={100} src={this.urlProductImages+"/getFirstImage/"+record.id}/>
-              // <Image width={150} src={`data:image/png;base64,${record.imageData}`}/>
             }
           },
           {
             title: '操作',
-            // dataIndex: 'imageData',
             key: 'id',
             render: (record:any) => (
               <div style={{ display: 'flex', gap: '8px'}}>
@@ -173,6 +164,7 @@ class Products extends Component {
             visible={this.state.showEditingDialog}
             close={this.closeEditingDialog}
             loadData={this.state.editingRecord}
+            reload={this.loadData}
           />
         </div>
       );

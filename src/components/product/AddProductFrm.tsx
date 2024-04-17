@@ -1,7 +1,6 @@
-import React, { Component, ReactNode, RefObject } from "react";
+import { Component, ReactNode } from "react";
 import { Form, Input, Select, Upload, Button, message, Space } from "antd";
-import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
-import { UploadFile } from 'antd/lib/upload/interface';
+import { PlusOutlined } from '@ant-design/icons';
 import axios from "axios"
 const apiUrl: string = import.meta.env.VITE_API_URL;
 const { TextArea } = Input;
@@ -12,14 +11,8 @@ interface AddProductFrmProps {
 }
 
 class AddProductFrm extends Component<AddProductFrmProps> {
-  uploadRef: RefObject<any>;
   constructor(props: any){
     super(props)
-    this.uploadRef = React.createRef();
-  }
-
-  componentDidMount(): void {
-    console.log("initial uploadRef: ", this.uploadRef.current);
   }
 
   normFile = (e: any) => {
@@ -33,27 +26,9 @@ class AddProductFrm extends Component<AddProductFrmProps> {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
   };
 
-  beforeUpload = (file: File) => {
-    console.log("Before upload, fileList:", file);
-    
-    // Rest of your code...
-
+  beforeUpload = () => {
     return false; // Allow the upload
 };
-
-  handleDeletion = (file: UploadFile) => {
-    console.log("hit handleDeletion")
-    // const updatedFileList = this.state.fileList.filter((item) => item.uid !== file.uid);
-    // this.setState({ fileList: updatedFileList });
-    this.setState((state: any) => {
-      const index = state.fileList.indexOf(file);
-      const newFileList = state.fileList.slice();
-      newFileList.splice(index, 1);
-      return {
-        fileList: newFileList,
-      };
-    });
-  }
 
   handleSubmit = async (values: any) => {
     console.log(values);
@@ -70,7 +45,7 @@ class AddProductFrm extends Component<AddProductFrmProps> {
     });
   
     try {
-      const response = await axios.post(`${apiUrl}/api/product`, formData, {
+      await axios.post(`${apiUrl}/api/product`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -117,7 +92,6 @@ class AddProductFrm extends Component<AddProductFrmProps> {
                   rules={[{ required: true }]}
                 >
                   <Upload 
-                    ref={this.uploadRef}
                     listType="picture-card" 
                     beforeUpload={this.beforeUpload}>
                       <button style={{ border: 0, background: 'none' }} type="button">

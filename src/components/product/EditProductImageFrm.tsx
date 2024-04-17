@@ -1,10 +1,8 @@
 import { Component, ReactNode } from "react";
-import { Form, Input, Select, Upload, Button, message, Space, Image } from "antd";
+import {  Upload, message, Image } from "antd";
 import type { GetProp, UploadFile, UploadProps } from 'antd';
-import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
-import { ProductData } from "./ProductData"; 
+import { PlusOutlined } from '@ant-design/icons';
 import axios from "axios"
-import ImageUpload from "@/components/ImageUpload"
 
 import React, {RefObject} from "react";
 
@@ -45,7 +43,6 @@ class EditProductFrm extends Component<EditProductFrmProps, EditProductFrmState>
     };
   }
 
-
   componentDidMount() {
     // Fetch images based on product ID when the component mounts
     this.fetchImages(this.props.productId);
@@ -56,12 +53,15 @@ class EditProductFrm extends Component<EditProductFrmProps, EditProductFrmState>
       const response = await axios.get(`${urlProductImages}/getImagesIdByProductId/${productId}`);
       const images = response.data; // Assuming response.data is an array of image URLs
       const fileList = images.map((imageId: string) => ({
-        imageId: `${imageId}`,
-        // name: `image-${index}`,
+        uid: `${imageId}`,
         status: 'done',
         url: `${urlProductImages}/getImageById/${imageId}`,
       }));
-      this.setState({ fileList: fileList }); // Set the fileList and loading state
+      this.setState({ fileList: fileList }, () => {
+        console.log("fetching Images ends ---", this.state.fileList);
+      }); 
+      
+      
     } catch (error) {
       console.error('Error fetching images:', error);
       message.error('Failed to fetch images');
@@ -77,34 +77,41 @@ class EditProductFrm extends Component<EditProductFrmProps, EditProductFrmState>
     return e?.fileList;
   };
 
-  beforeUpload = (file: File) => {
-    // console.log("Before upload, file:", file);
-    // console.log("Before upload, fileList:", this.state.fileList);
-    
-    // Rest of your code...
+  beforeUpload = () => {
 
     return false; // Don't allow the upload
 };
 
   handleDeletion = (file: UploadFile) => {
     console.log("hit handleDeletion")
-    // const updatedFileList = this.state.fileList.filter((item) => item.uid !== file.uid);
-    // this.setState({ fileList: updatedFileList });
-    this.setState((state: any) => {
-      const index = state.fileList.indexOf(file);
-      const newFileList = state.fileList.slice();
-      newFileList.splice(index, 1);
+
+    axios.delete(`${urlProductImages}?id=${file.uid}`).then(
+      
+    )
+
+    this.setState((prevState: any) => {
+      const newFileList = prevState.fileList.filter((oldFile:any) => oldFile.uid !== file.uid)
       return {
         fileList: [...newFileList],
       };
     });
   }
 
-  handleChange: UploadProps['onChange'] = async ({ fileList: newFileList }) => {
-    console.log("handleChange", newFileList);
+  handleChange: UploadProps['onChange'] = async ({ fileList: newFileList, file }) => {
+    if (file && file.status === 'removed') {
+      // Handle deletion
+      this.handleDeletion(file);
+      return;
+    }
+
+    console.log("handleChange-newFileList", newFileList);
+    console.log("the global fileList is: ",this.state.fileList);
+    console.log("handleChange-singlefile", file);
     const newFile = newFileList[newFileList.length - 1];
 
     if (newFile && newFile.originFileObj){
+      console.log("Enter handleChange if");
+      
       const formData = new FormData();
       formData.append('productId', `${this.props.productId}`)
       formData.append('image', newFile.originFileObj)
@@ -117,7 +124,7 @@ class EditProductFrm extends Component<EditProductFrmProps, EditProductFrmState>
         message.success('Image added successfully!')
         const respImageId = response.data
         const newImage = {
-          imageId: `${respImageId}`,
+          uid: `${respImageId}`,
           status: 'done',
           url: `${urlProductImages}/getImageById/${respImageId}`,
         }

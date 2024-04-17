@@ -1,8 +1,5 @@
 import React, { lazy } from "react";
 import Home from "../views/Home"
-// import About from "../view/About"
-const Page1 = lazy(() => import("../views/Page1"))
-const Page2 = lazy(() => import("../views/Page2"))
 const SwiperImages = lazy(() => import("../views/SwiperImages"))
 const Products = lazy(() => import("../views/Products"))
 import {Navigate} from "react-router-dom"
@@ -16,20 +13,12 @@ const withLoadingComponent = (comp:JSX.Element) => (
 const router = [
     {
         path:"/",
-        element:<Navigate to="/page1"/>
+        element:<Navigate to="/swiperImages"/>
     },
     {
         path:"/",
         element:<Home/>,
         children:[
-            {
-                path:"/page1",
-                element: withLoadingComponent(<Page1/>)
-            },
-            {
-                path:"/page2",
-                element: withLoadingComponent(<Page2/>)
-            },
             {
                 path:"/swiperImages",
                 element: withLoadingComponent(<SwiperImages/>)
@@ -40,6 +29,7 @@ const router = [
             }
         ]
     }
+    //Another router approach
     // {
     //     path:"/home",
     //     element:<Home/>

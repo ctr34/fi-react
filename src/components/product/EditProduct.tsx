@@ -9,12 +9,18 @@ interface EditProductProps {
     visible: boolean;
     close(): void;
     loadData: ProductData;
+    reload(): void
   }
 
 class EditProduct extends Component<EditProductProps> {
 
     closeModal = () => {
         this.props.close()
+        this.props.reload()
+    }
+
+    reload = () => {
+        this.props.reload()
     }
 
     renderFormComponent = () => {
@@ -23,6 +29,7 @@ class EditProduct extends Component<EditProductProps> {
                 <EditProductInfoFrm 
                     closeModal={this.closeModal}
                     productData={this.props.loadData}
+                    reload={this.reload}
                 />
             );
         } else {
@@ -30,6 +37,7 @@ class EditProduct extends Component<EditProductProps> {
                 <EditProductImageFrm 
                     closeModal={this.closeModal}
                     productId={this.props.loadData.id}
+                    // reload={this.reload}
                 />
             );
         }

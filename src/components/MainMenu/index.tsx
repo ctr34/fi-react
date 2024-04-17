@@ -1,11 +1,6 @@
-import { useState } from 'react';
 import {
-    DesktopOutlined,
     FileOutlined,
-    PieChartOutlined,
     ProductOutlined,
-    TeamOutlined,
-    UserOutlined,
   } from '@ant-design/icons';
   import type { MenuProps } from 'antd';
   import { Menu } from 'antd';
@@ -28,7 +23,7 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('订单统计', '/page1', <PieChartOutlined />),
+    // getItem('订单统计', '/page1', <PieChartOutlined />),
   //   getItem('Option 2', '2', <DesktopOutlined />), 
   //   getItem('User', 'sub1', <UserOutlined />, [
   //     getItem('Tom', '3'),
